@@ -272,11 +272,11 @@ export const CoachingReport: React.FC<CoachingReportProps> = ({
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="border border-gray-200 rounded-lg p-4">
-                        <h4 className="font-medium text-gray-800 mb-2">Tony Robbins Resources</h4>
+                        <h4 className="font-medium text-gray-800 mb-2">Breakthrough Coaching Resources</h4>
                         <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• "Awaken the Giant Within" - Personal Power</li>
-                          <li>• "Questions for Better Life" - Powerful Questioning</li>
-                          <li>• "Six Human Needs" Psychology</li>
+                          <li>• Advanced Questioning Techniques</li>
+                          <li>• Powerful Questions for Insight</li>
+                          <li>• Human Needs Psychology</li>
                         </ul>
                       </div>
                       <div className="border border-gray-200 rounded-lg p-4">

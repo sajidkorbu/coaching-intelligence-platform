@@ -655,10 +655,10 @@ export class CoachingEvaluator {
   }
 
   private getPowerfulQuestioningFeedback(score: number): string {
-    if (score >= 85) return "Outstanding questioning! You used Tony Robbins-style powerful questions that created insights.";
+    if (score >= 85) return "Outstanding questioning! You used powerful questions that created genuine insights and breakthroughs.";
     if (score >= 70) return "Good questioning with some powerful moments. Aim for more outcome-focused and empowering questions.";
     if (score >= 50) return "Decent questioning but could be more powerful. Focus on 'what' and 'how' rather than 'why' questions.";
-    return "Questions need more power and focus. Study Tony Robbins' questioning techniques for better results.";
+    return "Questions need more power and focus. Study advanced questioning techniques for better results.";
   }
 
   private getRapportBuildingFeedback(score: number): string {
@@ -702,7 +702,7 @@ export class CoachingEvaluator {
 
   private generateOverallFeedback(score: number, tonyRobbins: TonyRobbinsMetrics): string {
     if (score >= 85) {
-      return "Outstanding coaching session! You demonstrated mastery of both Tony Robbins' breakthrough methodology and professional coaching standards. Your client experienced genuine insights and emotional shifts.";
+      return "Outstanding coaching session! You demonstrated mastery of breakthrough coaching methodology and professional standards. Your client experienced genuine insights and emotional shifts.";
     }
     if (score >= 70) {
       return "Strong coaching performance! You showed good understanding of powerful coaching techniques with room to enhance breakthrough creation and outcome focus.";
@@ -710,14 +710,14 @@ export class CoachingEvaluator {
     if (score >= 55) {
       return "Solid coaching foundation with opportunities for growth. Focus on more powerful questioning and creating breakthrough moments for your clients.";
     }
-    return "This session shows you're learning, but there's significant room for improvement. Study Tony Robbins' methodology more deeply and practice the fundamentals of powerful coaching.";
+    return "This session shows you're learning, but there's significant room for improvement. Study advanced coaching methodology and practice the fundamentals of powerful coaching.";
   }
 
   private generateRecommendations(tonyRobbins: TonyRobbinsMetrics, icf: ICFMetrics): string[] {
     const recommendations: string[] = [];
     
     if (tonyRobbins.powerfulQuestions < 70) {
-      recommendations.push("Study Tony Robbins' questioning patterns - focus on outcome and empowerment questions");
+      recommendations.push("Study advanced questioning patterns - focus on outcome and empowerment questions");
     }
     if (tonyRobbins.breakthroughMoments < 50) {
       recommendations.push("Practice creating 'aha' moments through powerful reframes and perspective shifts");
@@ -731,7 +731,12 @@ export class CoachingEvaluator {
 
   private generateSessionSummary(session: CoachingSession, tonyRobbins: TonyRobbinsMetrics): string {
     const needsAddressed = tonyRobbins.sixNeedsAddressed.join(', ');
-    return `This ${session.messages.length / 2}-exchange session addressed ${needsAddressed} needs and achieved ${tonyRobbins.breakthroughMoments}% breakthrough effectiveness.`;
+    const messageCount = Math.floor(session.messages.length / 2);
+    const sessionLength = messageCount <= 3 ? 'brief conversation' : 
+                         messageCount <= 6 ? 'short session' : 
+                         messageCount <= 10 ? 'standard session' : 'extended session';
+    
+    return `This ${sessionLength} (${messageCount} exchanges) addressed ${needsAddressed} needs and achieved ${tonyRobbins.breakthroughMoments}% breakthrough effectiveness.`;
   }
 
   private analyzeClientProgression(clientMessages: Message[]): string {

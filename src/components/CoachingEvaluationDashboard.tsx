@@ -59,7 +59,7 @@ export const CoachingEvaluationDashboard: React.FC<CoachingEvaluationDashboardPr
 
         {/* Six Human Needs Status */}
         <div className="mb-6">
-          <h4 className="text-lg font-semibold mb-3">Tony Robbins' Six Human Needs Addressed</h4>
+          <h4 className="text-lg font-semibold mb-3">Six Human Needs Addressed</h4>
           <div className="grid grid-cols-3 gap-4">
             {Object.entries(realTimeEval.sixNeedsStatus).map(([need, addressed]) => (
               <div key={need} className={`p-3 rounded-lg ${addressed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
@@ -145,7 +145,7 @@ export const CoachingEvaluationDashboard: React.FC<CoachingEvaluationDashboardPr
               {/* Tony Robbins Style Feedback */}
               <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg">
                 <h3 className="text-lg font-bold text-orange-800 mb-2">
-                  🔥 Tony Robbins Style Feedback
+                  🔥 Breakthrough Coaching Feedback
                 </h3>
                 <p className="text-orange-700 text-lg leading-relaxed">
                   {analysis.coachingReport.tonyRobbinsStyleFeedback}
@@ -331,7 +331,7 @@ export const CoachingEvaluationDashboard: React.FC<CoachingEvaluationDashboardPr
 
                 {/* Tony Robbins Techniques */}
                 <div className="p-4 border border-orange-200 rounded-lg">
-                  <h3 className="text-lg font-semibold text-orange-800 mb-3">🔥 Tony Robbins Techniques</h3>
+                  <h3 className="text-lg font-semibold text-orange-800 mb-3">🔥 Advanced Coaching Techniques</h3>
                   <ul className="space-y-2">
                     {analysis.improvementPlan.tonyRobbinsTechniquesToPractice.map((technique, index) => (
                       <li key={index} className="text-orange-700 text-sm">• {technique}</li>
