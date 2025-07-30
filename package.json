@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",
     "@types/react": "^19.1.9",
