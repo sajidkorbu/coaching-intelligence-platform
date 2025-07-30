@@ -14,7 +14,6 @@
     
     <h2>Environment Variables Check:</h2>
     <div id="env-check">
-        <p id="openai-check">VITE_OPENAI_API_KEY: <span class="error">Not checked yet</span></p>
         <p id="supabase-url-check">VITE_SUPABASE_URL: <span class="error">Not checked yet</span></p>
         <p id="supabase-key-check">VITE_SUPABASE_ANON_KEY: <span class="error">Not checked yet</span></p>
     </div>
@@ -28,15 +27,11 @@
     <script>
         // Check environment variables (will work in build, not in dev)
         const envVars = {
-            openai: typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_OPENAI_API_KEY : 'Not available in static context',
             supabaseUrl: typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_SUPABASE_URL : 'Not available in static context',
             supabaseKey: typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_SUPABASE_ANON_KEY : 'Not available in static context'
         };
 
         console.log('Environment Variables:', envVars);
-
-        document.getElementById('openai-check').innerHTML = 
-            `VITE_OPENAI_API_KEY: <span class="${envVars.openai ? 'success' : 'error'}">${envVars.openai ? 'SET' : 'MISSING'}</span>`;
         
         document.getElementById('supabase-url-check').innerHTML = 
             `VITE_SUPABASE_URL: <span class="${envVars.supabaseUrl ? 'success' : 'error'}">${envVars.supabaseUrl ? 'SET' : 'MISSING'}</span>`;

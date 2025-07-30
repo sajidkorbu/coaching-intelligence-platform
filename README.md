@@ -102,12 +102,13 @@ Based on **Tony Robbins methodology** + **ICF standards**:
    cp .env.example .env
    ```
    
-   Update `.env` with your keys:
+   Update `.env` with your Supabase keys:
    ```
-   VITE_OPENAI_API_KEY=your_openai_api_key
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
+   
+   **Note**: OpenAI API key is handled securely through Supabase Edge Functions
 
 4. **Set up Supabase database**
    ```bash

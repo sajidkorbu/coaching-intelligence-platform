@@ -2,20 +2,17 @@ import { PersonaProfile, PersonaMemory, CoachingSession } from '../types';
 import { MemoryStore } from './MemoryStore';
 import { ConsistencyValidator } from './ConsistencyValidator';
 import { SecureOpenAIService } from '../services/SecureOpenAIService';
-import { OpenAIService } from '../services/OpenAIService';
 
 export class PersonaEngine {
   private memoryStore: MemoryStore;
   private consistencyValidator: ConsistencyValidator;
   private secureOpenAIService: SecureOpenAIService;
-  private fallbackOpenAIService: OpenAIService;
   private personas: Map<string, PersonaProfile>;
 
   constructor() {
     this.memoryStore = new MemoryStore();
     this.consistencyValidator = new ConsistencyValidator();
     this.secureOpenAIService = new SecureOpenAIService();
-    this.fallbackOpenAIService = new OpenAIService();
     this.personas = new Map();
     this.initializePersonas();
   }
@@ -160,20 +157,7 @@ ${context}`
       return result;
     } catch (error) {
       console.error('❌ Edge Function failed:', error);
-      console.log('🔄 Falling back to direct OpenAI...');
-      
-      try {
-        const fallbackResult = await this.fallbackOpenAIService.generatePersonaResponse(
-          persona,
-          context,
-          coachMessage
-        );
-        console.log('✅ Fallback OpenAI worked!');
-        return fallbackResult;
-      } catch (fallbackError) {
-        console.error('❌ Fallback OpenAI also failed:', fallbackError);
-        throw new Error(`Both services failed. Edge Function: ${error instanceof Error ? error.message : String(error)}. OpenAI: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
-      }
+      throw new Error(`Edge Function failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
