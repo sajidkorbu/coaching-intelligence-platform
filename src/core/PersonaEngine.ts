@@ -145,6 +145,12 @@ ${context}`
 
     try {
       console.log('🔄 Trying Edge Function first...');
+      console.log('📋 PersonaEngine conversation history:', {
+        length: conversationHistory?.length,
+        first: conversationHistory?.[0],
+        last: conversationHistory?.[conversationHistory.length - 1]
+      });
+      
       const result = await this.secureOpenAIService.generatePersonaResponse(
         persona.id,
         coachMessage,

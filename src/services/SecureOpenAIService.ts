@@ -33,13 +33,27 @@ export class SecureOpenAIService {
     conversationHistory: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
   ): Promise<string> {
     try {
+      console.log('🔍 SecureOpenAIService debug:', {
+        personaId,
+        coachMessage: coachMessage?.substring(0, 50) + '...',
+        conversationHistoryLength: conversationHistory?.length,
+        conversationHistory: conversationHistory
+      });
+
       // Call Supabase Edge Function instead of OpenAI directly
+      const requestBody = {
+        personaId,
+        coachMessage,
+        messages: conversationHistory  // Edge Function expects 'messages', not 'conversationHistory'
+      };
+
+      console.log('📤 Sending to Edge Function:', {
+        ...requestBody,
+        messages: requestBody.messages?.length ? `${requestBody.messages.length} messages` : 'NO MESSAGES'
+      });
+
       const { data, error } = await supabase.functions.invoke('generate-response', {
-        body: {
-          personaId,
-          coachMessage,
-          messages: conversationHistory  // Edge Function expects 'messages', not 'conversationHistory'
-        }
+        body: requestBody
       });
 
       if (error) {
