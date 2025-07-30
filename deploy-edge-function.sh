@@ -22,7 +22,7 @@ fi
 
 # Link to your project
 echo "🔗 Step 2: Linking to your Supabase project..."
-supabase link --project-ref aehiilyyexblskkzzplo
+supabase link --project-ref YOUR_PROJECT_REF
 
 # Deploy the Edge Function
 echo "🚀 Step 3: Deploying Edge Function..."
@@ -36,7 +36,7 @@ echo ""
 echo "🎉 Deployment complete!"
 echo ""
 echo "Your Edge Function is now deployed at:"
-echo "https://aehiilyyexblskkzzplo.supabase.co/functions/v1/generate-response"
+echo "https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate-response"
 echo ""
 echo "The OpenAI API key you added through the website should now be working."
 echo "You can test your app - it will use the secure Edge Function instead of direct API calls!"

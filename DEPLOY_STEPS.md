@@ -10,7 +10,7 @@ This will open your browser for authentication.
 
 ## Step 2: Link to your project
 ```bash
-supabase link --project-ref aehiilyyexblskkzzplo
+supabase link --project-ref YOUR_PROJECT_REF
 ```
 
 ## Step 3: Deploy the Edge Function
@@ -40,7 +40,7 @@ If CLI doesn't work, you can also deploy through the Supabase dashboard:
 Once deployed, your app will automatically use the secure Edge Function! 
 
 The endpoint will be:
-`https://aehiilyyexblskkzzplo.supabase.co/functions/v1/generate-response`
+`https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate-response`
 
 ## ✅ Security Benefits After Deployment
 

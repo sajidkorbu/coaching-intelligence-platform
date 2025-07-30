@@ -24,7 +24,7 @@ supabase init
 
 ### 2. Link to your existing project
 ```bash
-supabase link --project-ref aehiilyyexblskkzzplo
+supabase link --project-ref YOUR_PROJECT_REF
 ```
 
 ### 3. Set the OpenAI API key as a secret
@@ -47,7 +47,7 @@ supabase functions list
 You can test the function using:
 
 ```bash
-curl -X POST 'https://aehiilyyexblskkzzplo.supabase.co/functions/v1/generate-response' \
+curl -X POST 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate-response' \
   -H 'Authorization: Bearer YOUR_SUPABASE_ANON_KEY' \
   -H 'Content-Type: application/json' \
   -d '{
