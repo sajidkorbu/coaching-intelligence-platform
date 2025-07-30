@@ -14,12 +14,17 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { personaId, coachMessage, conversationHistory } = await req.json()
+    const { personaId, coachMessage, messages } = await req.json()
 
     // Get OpenAI API key from Supabase secrets
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
       throw new Error('OpenAI API key not configured')
+    }
+
+    // Validate that messages array exists
+    if (!messages || !Array.isArray(messages)) {
+      throw new Error('Messages array is required')
     }
 
     // Make request to OpenAI API
@@ -31,7 +36,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'gpt-4',
-        messages: conversationHistory,
+        messages: messages,
         max_tokens: 300,
         temperature: 0.8,
         presence_penalty: 0.6,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CoachingSession, PersonaProfile } from '../types';
 import { CoachingEvaluationService, DetailedSessionAnalysis, RealTimeEvaluation } from '../evaluation/CoachingEvaluationService';
-import { SixHumanNeeds } from '../evaluation/TonyRobbinsEvaluationFramework';
+// import { SixHumanNeeds } from '../evaluation/TonyRobbinsEvaluationFramework';
 
 interface CoachingEvaluationDashboardProps {
   session: CoachingSession;

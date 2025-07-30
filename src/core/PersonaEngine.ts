@@ -1,4 +1,4 @@
-import { PersonaProfile, PersonaMemory, Message, CoachingSession } from '../types';
+import { PersonaProfile, PersonaMemory, CoachingSession } from '../types';
 import { MemoryStore } from './MemoryStore';
 import { ConsistencyValidator } from './ConsistencyValidator';
 import { SecureOpenAIService } from '../services/SecureOpenAIService';
@@ -126,8 +126,8 @@ Personality Traits:
 - Energy Level: ${persona.personalityTraits.energyLevel}
 - Openness to Change: ${persona.personalityTraits.opennessToChange}
 
-Work Profile: ${persona.workPersona ? `${persona.workPersona.jobTitle} - ${persona.workPersona.workStyle}` : 'N/A'}
-Personal Context: ${persona.personalContext || 'General personal challenges'}
+Work Profile: ${persona.workPersona ? `${persona.workPersona.jobTitle} - ${persona.workPersona.industry}` : 'N/A'}
+Personal Context: General personal challenges related to ${persona.city} metro lifestyle
 
 Important: Stay consistent with your personality, background, and current emotional state. Respond naturally as a real person would, showing authentic emotions and reactions. Remember previous conversations and maintain continuity.
 
@@ -166,7 +166,7 @@ ${context}`
         return fallbackResult;
       } catch (fallbackError) {
         console.error('❌ Fallback OpenAI also failed:', fallbackError);
-        throw new Error(`Both services failed. Edge Function: ${error.message}. OpenAI: ${fallbackError.message}`);
+        throw new Error(`Both services failed. Edge Function: ${error instanceof Error ? error.message : String(error)}. OpenAI: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
       }
     }
   }
