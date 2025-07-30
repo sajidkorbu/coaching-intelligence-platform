@@ -4,7 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  SECRETS_SCAN_OMIT_PATHS = "DEPLOY_STEPS.md,SUPABASE_SETUP.md,deploy-edge-function.sh,*.md,*.sh"
+  SECRETS_SCAN_OMIT_PATHS = "DEPLOY_STEPS.md,SUPABASE_SETUP.md,deploy-edge-function.sh,*.md,*.sh,README.md"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY"
   SECRETS_SCAN_ENABLED = "true"
 
 # SPA routing
