@@ -124,4 +124,8 @@ export interface CoachingReport {
   strengths: string[];
   nextSessionRecommendations: string[];
   tonyRobbinsStyleFeedback: string;
+  // Session highlights for display
+  bestQuestion?: string;
+  clientBreakthroughQuote?: string;
+  keyLearning?: string;
 }

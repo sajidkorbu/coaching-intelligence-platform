@@ -26,17 +26,6 @@ export const CoachingReport: React.FC<CoachingReportProps> = ({
     return '🌟';
   };
 
-  const getGradeLetter = (score: number) => {
-    if (score >= 90) return 'A+';
-    if (score >= 85) return 'A';
-    if (score >= 80) return 'A-';
-    if (score >= 75) return 'B+';
-    if (score >= 70) return 'B';
-    if (score >= 65) return 'B-';
-    if (score >= 60) return 'C+';
-    if (score >= 55) return 'C';
-    return 'D';
-  };
 
   const CompetencyBar: React.FC<{ title: string; data: { score: number; feedback: string; examples: string[] } }> = ({ 
     title, 
@@ -63,31 +52,34 @@ export const CoachingReport: React.FC<CoachingReportProps> = ({
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="text-center">
-            <div className="text-6xl mb-4">
-              {getScoreEmoji(report.coachPerformance.overallEffectiveness.score)}
-            </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Coaching Session Report
-            </h1>
-            <div className="flex items-center justify-center space-x-4">
-              <div className={`text-4xl font-bold px-4 py-2 rounded-lg ${getScoreColor(report.coachPerformance.overallEffectiveness.score)}`}>
-                {getGradeLetter(report.coachPerformance.overallEffectiveness.score)}
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="text-center">
+              <div className="text-6xl mb-4">
+                {getScoreEmoji(report.coachPerformance.overallEffectiveness.score)}
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-800">
-                  {report.coachPerformance.overallEffectiveness.score}%
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Coaching Session Report
+              </h1>
+              <div className="flex items-center justify-center space-x-4">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-gray-800">
+                    {report.coachPerformance.overallEffectiveness.score}%
+                  </div>
+                  <div className="text-sm text-gray-600">Overall Score</div>
                 </div>
-                <div className="text-sm text-gray-600">Overall Score</div>
               </div>
+              <p className="text-gray-600 mt-4">Session Highlights:</p>
+              <ul className="list-disc list-inside text-gray-800 mt-2">
+                <li>Client's breakthrough moment: "{report.clientBreakthroughQuote || 'Client showed engagement throughout the session'}"</li>
+                <li>Effective questioning: "{report.bestQuestion || 'Practice asking more powerful questions'}"</li>
+                <li>Key learning: "{report.keyLearning || 'Continue developing coaching skills'}"</li>
+              </ul>
             </div>
           </div>
-        </div>
 
         {/* Overall Feedback */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-md p-6 mb-6 text-white">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { PersonaProfile, Message, CoachingReport } from '../types';
 import { PersonaEngine } from '../core/PersonaEngine';
-import { CoachingEvaluator } from '../evaluation/CoachingEvaluator';
+import { ICFCoachingEvaluator } from '../evaluation/ICFCoachingEvaluator';
 import { DatabaseService } from '../services/DatabaseService';
 
 interface CoachingSessionProps {
@@ -23,7 +23,7 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
   const [messageCount, setMessageCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const personaEngine = useRef(new PersonaEngine());
-  const coachingEvaluator = useRef(new CoachingEvaluator());
+  const coachingEvaluator = useRef(new ICFCoachingEvaluator());
   const databaseService = useRef(new DatabaseService());
 
   const MAX_MESSAGES = 16; // 8 exchanges (coach + client responses)
@@ -208,7 +208,7 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
             <div>
               <h2 className="text-lg font-semibold text-gray-800">{persona.name}</h2>
               <p className="text-sm text-gray-600">
-                {persona.occupation} • {persona.city} • 
+                {persona.age} years old • {persona.occupation} • {persona.city} • 
                 <span className="ml-1 capitalize">{persona.personalityTraits.emotionalState}</span>
               </p>
             </div>

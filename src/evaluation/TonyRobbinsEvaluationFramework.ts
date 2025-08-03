@@ -473,7 +473,12 @@ export class TonyRobbinsEvaluationFramework {
       feedback = 'Limited effectiveness. Focus on Tony Robbins\' core principles: state, story, and strategy.';
     }
     
-    return { score, feedback, recommendations };
+    // Extract real quotes for report
+    const bestQuestion = coachMessages.find(msg => msg.content.includes('?'))?.content || 'N/A';
+    const clientBreakthroughQuote = clientMessages.find(msg => msg.content.toLowerCase().includes('realization'))?.content || 'N/A';
+    const keyLearning = clientMessages.find(msg => msg.content.toLowerCase().includes('learned'))?.content || 'N/A';
+
+    return { score, feedback, recommendations, bestQuestion, clientBreakthroughQuote, keyLearning };
   }
 
   // Additional helper methods for comprehensive evaluation
