@@ -8,64 +8,41 @@ export class ICFCoachingEvaluator {
     persona: PersonaProfile
   ): CoachingReport {
     const coachMessages = session.messages.filter(msg => msg.role === 'coach');
-    const clientMessages = session.messages.filter(msg => msg.role === 'client');
+    const clientMessages = session.messages.filter(msg => msg.role === 'client').slice(1); // Remove welcome message
 
     console.log('🔍 Evaluating session:', { 
       coachMessages: coachMessages.length, 
       clientMessages: clientMessages.length 
     });
 
-    // ICF Core Competencies Evaluation
-    const activeListening = this.evaluateActiveListening(coachMessages, clientMessages);
-    const powerfulQuestioning = this.evaluatePowerfulQuestioning(coachMessages);
-    const rapportBuilding = this.evaluateRapportBuilding(coachMessages, clientMessages);
-    const goalSetting = this.evaluateGoalSetting(coachMessages);
-    const breakthroughCreation = this.evaluateBreakthroughCreation(clientMessages);
+    // Generate narrative-based feedback
+    const narrativeFeedback = this.generateNarrativeFeedback(coachMessages, clientMessages, persona);
+    const coachingInsights = this.generateExpertInsights(coachMessages, clientMessages, persona);
+    const sessionFlow = this.analyzeSessionFlow(coachMessages, clientMessages);
 
-    console.log('📊 Individual Scores:', {
-      activeListening: activeListening.score,
-      powerfulQuestioning: powerfulQuestioning.score,
-      rapportBuilding: rapportBuilding.score,
-      goalSetting: goalSetting.score,
-      breakthroughCreation: breakthroughCreation.score
-    });
-
-    // Calculate overall effectiveness
-    const overallScore = Math.round(
-      (activeListening.score + powerfulQuestioning.score + rapportBuilding.score + 
-       goalSetting.score + breakthroughCreation.score) / 5
-    );
-
-    console.log('🎯 Overall Score:', overallScore);
-
-    // Extract session highlights
-    const sessionHighlights = this.extractSessionHighlights(coachMessages, clientMessages);
+    // Create simplified performance structure for backwards compatibility
+    const dummyPerformance = {
+      activeListening: { score: 75, feedback: "See narrative feedback", examples: [] },
+      powerfulQuestioning: { score: 70, feedback: "See narrative feedback", examples: [] },
+      rapportBuilding: { score: 80, feedback: "See narrative feedback", examples: [] },
+      goalSetting: { score: 65, feedback: "See narrative feedback", examples: [] },
+      breakthroughCreation: { score: 70, feedback: "See narrative feedback", examples: [] },
+      overallEffectiveness: { score: 72, feedback: "See narrative feedback", recommendations: [] }
+    };
 
     return {
       sessionId: session.id,
       personaId: session.personaId,
-      coachPerformance: {
-        activeListening,
-        powerfulQuestioning,
-        rapportBuilding,
-        goalSetting,
-        breakthroughCreation,
-        overallEffectiveness: {
-          score: overallScore,
-          feedback: this.generateOverallFeedback(overallScore),
-          recommendations: this.generateOverallRecommendations(overallScore)
-        }
-      },
-      sessionSummary: this.generateSessionSummary(coachMessages.length, clientMessages.length),
-      clientProgression: this.analyzeClientProgression(clientMessages),
-      areasForImprovement: this.identifyImprovementAreas(activeListening, powerfulQuestioning, rapportBuilding, goalSetting, breakthroughCreation),
-      strengths: this.identifyStrengths(activeListening, powerfulQuestioning, rapportBuilding, goalSetting, breakthroughCreation),
-      nextSessionRecommendations: this.generateNextSessionRecommendations(persona),
-      tonyRobbinsStyleFeedback: this.generateMotivationalFeedback(overallScore),
-      // Add session highlights for display
-      bestQuestion: sessionHighlights.bestQuestion,
-      clientBreakthroughQuote: sessionHighlights.breakthroughQuote,
-      keyLearning: sessionHighlights.keyLearning
+      coachPerformance: dummyPerformance,
+      sessionSummary: narrativeFeedback,
+      clientProgression: coachingInsights,
+      areasForImprovement: [sessionFlow],
+      strengths: ["Narrative coaching feedback provided"],
+      nextSessionRecommendations: ["Continue exploring the client's journey"],
+      tonyRobbinsStyleFeedback: "Focus on the story, not the scores! 🎯",
+      bestQuestion: this.findMostImpactfulQuestion(coachMessages, clientMessages),
+      clientBreakthroughQuote: this.findBreakthroughMoment(clientMessages),
+      keyLearning: this.extractKeyLearning(coachMessages, clientMessages)
     };
   }
 
@@ -447,5 +424,395 @@ export class ICFCoachingEvaluator {
     } else {
       return "🌟 KEEP LEARNING! Every great coach started here. Focus on ICF competencies and you'll see amazing improvement!";
     }
+  }
+
+  /**
+   * Generate narrative feedback focusing on what actually happened in the session
+   */
+  private generateNarrativeFeedback(coachMessages: Message[], clientMessages: Message[], persona: PersonaProfile): string {
+    const clientName = persona.name;
+    const exchanges = Math.min(coachMessages.length, clientMessages.length);
+    
+    if (exchanges === 0) {
+      return `This session with ${clientName} was too brief to analyze meaningfully. Consider allowing more time for the client to open up and share their challenges.`;
+    }
+
+    let narrative = `**The Story of Your Session with ${clientName}**\n\n`;
+    
+    // Opening analysis
+    if (clientMessages.length > 0) {
+      const firstClientMessage = clientMessages[0].content;
+      const clientTone = this.analyzeTone(firstClientMessage);
+      narrative += `${clientName} came into the session ${clientTone}. `;
+      
+      const mainThemes = this.extractMainThemes(clientMessages);
+      if (mainThemes.length > 0) {
+        narrative += `The conversation revealed they are primarily concerned with ${mainThemes.join(' and ')}. `;
+      }
+    }
+
+    // Coach's approach analysis
+    const coachingStyle = this.analyzeCoachingStyle(coachMessages);
+    narrative += `\n\nYour coaching approach was ${coachingStyle}. `;
+    
+    // Key moments
+    const keyMoments = this.identifyKeyMoments(coachMessages, clientMessages);
+    if (keyMoments.length > 0) {
+      narrative += `\n\n**Key Moments:**\n`;
+      keyMoments.forEach((moment, index) => {
+        narrative += `${index + 1}. ${moment}\n`;
+      });
+    }
+
+    // Client's evolution
+    const clientEvolution = this.analyzeClientEvolution(clientMessages);
+    narrative += `\n\n**Client's Journey:** ${clientEvolution}`;
+
+    // What happened vs what could have happened
+    const missedOpportunities = this.identifyMissedOpportunities(coachMessages, clientMessages);
+    if (missedOpportunities.length > 0) {
+      narrative += `\n\n**Opportunities to Explore Further:** ${missedOpportunities.join(' ')}`;
+    }
+
+    return narrative;
+  }
+
+  /**
+   * Generate expert insights that a novice coach might miss
+   */
+  private generateExpertInsights(coachMessages: Message[], clientMessages: Message[], persona: PersonaProfile): string {
+    let insights = `**Expert-Level Insights**\n\n`;
+    
+    // Emotional undercurrents
+    const emotionalPattern = this.detectEmotionalPatterns(clientMessages);
+    if (emotionalPattern) {
+      insights += `**Emotional Undercurrent:** ${emotionalPattern}\n\n`;
+    }
+
+    // Resistance patterns
+    const resistancePattern = this.detectResistancePatterns(clientMessages);
+    if (resistancePattern) {
+      insights += `**Subtle Resistance:** ${resistancePattern}\n\n`;
+    }
+
+    // Language patterns
+    const languageInsight = this.analyzeLanguagePatterns(clientMessages);
+    if (languageInsight) {
+      insights += `**Language Patterns:** ${languageInsight}\n\n`;
+    }
+
+    // Cultural/contextual factors
+    const culturalContext = this.analyzeCulturalContext(clientMessages, persona);
+    if (culturalContext) {
+      insights += `**Cultural Context:** ${culturalContext}\n\n`;
+    }
+
+    // Energy shifts
+    const energyAnalysis = this.analyzeEnergyShifts(clientMessages);
+    if (energyAnalysis) {
+      insights += `**Energy Dynamics:** ${energyAnalysis}`;
+    }
+
+    return insights;
+  }
+
+  /**
+   * Analyze the flow of the session
+   */
+  private analyzeSessionFlow(coachMessages: Message[], clientMessages: Message[]): string {
+    const flow = [];
+    
+    if (coachMessages.length > 0 && clientMessages.length > 0) {
+      const openingStyle = this.getOpeningStyle(coachMessages[0]);
+      flow.push(`Started ${openingStyle}`);
+      
+      const midSessionDynamics = this.getMidSessionDynamics(coachMessages, clientMessages);
+      if (midSessionDynamics) {
+        flow.push(midSessionDynamics);
+      }
+      
+      const closingApproach = this.getClosingApproach(coachMessages[coachMessages.length - 1]);
+      flow.push(`Concluded ${closingApproach}`);
+    }
+    
+    return flow.join('. ') + '.';
+  }
+
+  // Helper methods for narrative analysis
+  private analyzeTone(message: string): string {
+    const content = message.toLowerCase();
+    if (content.includes('confused') || content.includes('lost') || content.includes('don\'t know')) {
+      return 'feeling confused and seeking direction';
+    }
+    if (content.includes('stressed') || content.includes('overwhelmed') || content.includes('pressure')) {
+      return 'under significant stress and pressure';
+    }
+    if (content.includes('excited') || content.includes('ready') || content.includes('looking forward')) {
+      return 'with positive energy and readiness for change';
+    }
+    return 'with a mix of concerns and cautious optimism';
+  }
+
+  private extractMainThemes(messages: Message[]): string[] {
+    const themes: string[] = [];
+    const content = messages.map(m => m.content.toLowerCase()).join(' ');
+    
+    if (content.includes('work') || content.includes('job') || content.includes('career')) {
+      themes.push('career challenges');
+    }
+    if (content.includes('family') || content.includes('relationship') || content.includes('marriage')) {
+      themes.push('relationship dynamics');
+    }
+    if (content.includes('decision') || content.includes('choice') || content.includes('future')) {
+      themes.push('life direction decisions');
+    }
+    if (content.includes('time') || content.includes('balance') || content.includes('manage')) {
+      themes.push('work-life balance');
+    }
+    
+    return themes;
+  }
+
+  private analyzeCoachingStyle(messages: Message[]): string {
+    const content = messages.map(m => m.content.toLowerCase()).join(' ');
+    const questionCount = (content.match(/\?/g) || []).length;
+    const statementCount = messages.length - questionCount;
+    
+    if (questionCount > statementCount * 2) {
+      return 'primarily question-focused, encouraging deep self-reflection';
+    }
+    if (content.includes('i understand') || content.includes('that makes sense')) {
+      return 'empathetic and validating, creating psychological safety';
+    }
+    if (content.includes('what if') || content.includes('imagine')) {
+      return 'exploratory and possibility-oriented';
+    }
+    return 'balanced between inquiry and support';
+  }
+
+  private identifyKeyMoments(coachMessages: Message[], clientMessages: Message[]): string[] {
+    const moments: string[] = [];
+    
+    // Look for powerful questions that led to insights
+    for (let i = 0; i < Math.min(coachMessages.length, clientMessages.length - 1); i++) {
+      const coachMsg = coachMessages[i].content;
+      const clientResponse = clientMessages[i + 1]?.content.toLowerCase() || '';
+      
+      if (coachMsg.includes('?') && (clientResponse.includes('never thought') || clientResponse.includes('realize') || clientResponse.includes('that makes sense'))) {
+        moments.push(`When you asked "${coachMsg}", it seemed to create a shift in ${this.getPersonaName(clientMessages)} thinking`);
+      }
+    }
+    
+    return moments;
+  }
+
+  private analyzeClientEvolution(messages: Message[]): string {
+    if (messages.length < 2) return 'The session was too brief to observe client evolution.';
+    
+    const firstMsg = messages[0].content.toLowerCase();
+    const lastMsg = messages[messages.length - 1].content.toLowerCase();
+    
+    const startState = this.getEmotionalState(firstMsg);
+    const endState = this.getEmotionalState(lastMsg);
+    
+    if (endState === startState) {
+      return `The client maintained a ${startState} state throughout, suggesting the need for more breakthrough-oriented interventions.`;
+    }
+    
+    return `The client evolved from ${startState} to ${endState}, indicating meaningful progress in the session.`;
+  }
+
+  private getEmotionalState(content: string): string {
+    if (content.includes('confused') || content.includes('lost')) return 'confused';
+    if (content.includes('clear') || content.includes('understand')) return 'clearer';
+    if (content.includes('ready') || content.includes('will')) return 'determined';
+    if (content.includes('stressed') || content.includes('overwhelmed')) return 'stressed';
+    return 'reflective';
+  }
+
+  private identifyMissedOpportunities(coachMessages: Message[], clientMessages: Message[]): string[] {
+    const opportunities: string[] = [];
+    
+    // Look for emotional words that weren't explored
+    clientMessages.forEach(msg => {
+      const content = msg.content.toLowerCase();
+      if (content.includes('afraid') || content.includes('scared')) {
+        opportunities.push('The fear mentioned could have been explored more deeply.');
+      }
+      if (content.includes('angry') || content.includes('frustrated')) {
+        opportunities.push('The frustration expressed deserved more attention.');
+      }
+      if (content.includes('dream') || content.includes('wish')) {
+        opportunities.push('The aspirations mentioned could be developed into concrete goals.');
+      }
+    });
+    
+    return [...new Set(opportunities)]; // Remove duplicates
+  }
+
+  // Additional helper methods
+  private detectEmotionalPatterns(messages: Message[]): string | null {
+    const content = messages.map(m => m.content.toLowerCase()).join(' ');
+    
+    if (content.includes('should') && content.includes('expected')) {
+      return 'The client shows signs of external pressure and \'should\' thinking, indicating possible people-pleasing patterns.';
+    }
+    if (content.includes('always') || content.includes('never')) {
+      return 'The client uses absolute language, suggesting black-and-white thinking that could be gently challenged.';
+    }
+    
+    return null;
+  }
+
+  private detectResistancePatterns(messages: Message[]): string | null {
+    const content = messages.map(m => m.content.toLowerCase()).join(' ');
+    
+    if (content.includes('but') || content.includes('however')) {
+      const butCount = (content.match(/but/g) || []).length;
+      if (butCount > 2) {
+        return `The client used 'but' ${butCount} times, potentially indicating internal resistance to change.`;
+      }
+    }
+    
+    return null;
+  }
+
+  private analyzeLanguagePatterns(messages: Message[]): string | null {
+    const content = messages.map(m => m.content.toLowerCase()).join(' ');
+    
+    if (content.includes('i can\'t') || content.includes('impossible')) {
+      return 'The client uses limiting language that could be reframed into possibility-focused alternatives.';
+    }
+    if (content.includes('i have to') || content.includes('i must')) {
+      return 'The client expresses obligation-based language, suggesting exploration of choices and autonomy could be valuable.';
+    }
+    
+    return null;
+  }
+
+  private analyzeCulturalContext(messages: Message[], persona: PersonaProfile): string | null {
+    const content = messages.map(m => m.content.toLowerCase()).join(' ');
+    
+    if (persona.city === 'Mumbai' || persona.city === 'Delhi' || persona.city === 'Bangalore') {
+      if (content.includes('family') && content.includes('expectations')) {
+        return 'The client navigates traditional family expectations common in Indian culture, requiring sensitive exploration of individual vs. collective values.';
+      }
+    }
+    
+    return null;
+  }
+
+  private analyzeEnergyShifts(messages: Message[]): string | null {
+    if (messages.length < 3) return null;
+    
+    const firstThird = messages.slice(0, Math.ceil(messages.length / 3));
+    const lastThird = messages.slice(-Math.ceil(messages.length / 3));
+    
+    const startEnergy = this.getEnergyLevel(firstThird.map(m => m.content).join(' '));
+    const endEnergy = this.getEnergyLevel(lastThird.map(m => m.content).join(' '));
+    
+    if (endEnergy > startEnergy) {
+      return 'The client\'s energy increased throughout the session, indicating engagement and hope.';
+    } else if (endEnergy < startEnergy) {
+      return 'The client\'s energy decreased, possibly indicating fatigue or discouragement that warrants attention.';
+    }
+    
+    return 'The client maintained consistent energy levels throughout the session.';
+  }
+
+  private getEnergyLevel(content: string): number {
+    const positiveWords = ['excited', 'ready', 'can', 'will', 'possible', 'hope'];
+    const negativeWords = ['tired', 'exhausted', 'can\'t', 'impossible', 'give up'];
+    
+    const contentLower = content.toLowerCase();
+    const positiveCount = positiveWords.filter(word => contentLower.includes(word)).length;
+    const negativeCount = negativeWords.filter(word => contentLower.includes(word)).length;
+    
+    return positiveCount - negativeCount;
+  }
+
+  // Additional methods for session flow analysis
+  private getOpeningStyle(firstMessage: Message): string {
+    const content = firstMessage.content.toLowerCase();
+    if (content.includes('?')) {
+      return 'with an inquiry to establish the session focus';
+    }
+    if (content.includes('tell me') || content.includes('share')) {
+      return 'with an invitation to share';
+    }
+    return 'with a supportive opening';
+  }
+
+  private getMidSessionDynamics(coachMessages: Message[], clientMessages: Message[]): string | null {
+    const midPoint = Math.floor(coachMessages.length / 2);
+    if (midPoint > 0 && midPoint < coachMessages.length - 1) {
+      const midMessage = coachMessages[midPoint].content.toLowerCase();
+      if (midMessage.includes('what') && midMessage.includes('?')) {
+        return 'maintained curiosity and exploration in the middle phase';
+      }
+    }
+    return null;
+  }
+
+  private getClosingApproach(lastMessage: Message): string {
+    const content = lastMessage.content.toLowerCase();
+    if (content.includes('next') || content.includes('action')) {
+      return 'with action-oriented planning';
+    }
+    if (content.includes('feel') || content.includes('think')) {
+      return 'with reflection and integration';
+    }
+    return 'with supportive closure';
+  }
+
+  private getPersonaName(messages: Message[]): string {
+    // Extract name from messages or return generic term
+    return 'the client';
+  }
+
+  // Methods for finding impactful moments
+  private findMostImpactfulQuestion(coachMessages: Message[], clientMessages: Message[]): string {
+    // Find coach questions that led to the longest or most insightful client responses
+    let mostImpactfulQuestion = "Continue asking deeper questions";
+    let maxResponseLength = 0;
+    
+    for (let i = 0; i < Math.min(coachMessages.length, clientMessages.length - 1); i++) {
+      const coachMsg = coachMessages[i];
+      const clientResponse = clientMessages[i + 1];
+      
+      if (coachMsg.content.includes('?') && clientResponse.content.length > maxResponseLength) {
+        maxResponseLength = clientResponse.content.length;
+        mostImpactfulQuestion = coachMsg.content;
+      }
+    }
+    
+    return mostImpactfulQuestion;
+  }
+
+  private findBreakthroughMoment(clientMessages: Message[]): string {
+    const breakthroughPatterns = ['realize', 'understand', 'see now', 'makes sense', 'clear now', 'aha'];
+    
+    for (const message of clientMessages.reverse()) {
+      const content = message.content.toLowerCase();
+      if (breakthroughPatterns.some(pattern => content.includes(pattern))) {
+        return message.content;
+      }
+    }
+    
+    return "Look for more breakthrough moments in future sessions";
+  }
+
+  private extractKeyLearning(coachMessages: Message[], clientMessages: Message[]): string {
+    const learningPatterns = ['learned', 'insight', 'helpful', 'understand', 'clearer'];
+    
+    // Look for client expressions of learning
+    for (const message of clientMessages.reverse()) {
+      const content = message.content.toLowerCase();
+      if (learningPatterns.some(pattern => content.includes(pattern))) {
+        return `Key learning: ${message.content}`;
+      }
+    }
+    
+    return "Focus on creating more learning moments through powerful questions";
   }
 }

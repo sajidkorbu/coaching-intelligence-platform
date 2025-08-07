@@ -4,7 +4,7 @@ export interface PersonaProfile {
   id: string;
   name: string;
   age: number;
-  city: 'Mumbai' | 'Delhi' | 'Bangalore';
+  city: 'Mumbai' | 'Delhi' | 'Bangalore' | 'Pune' | 'Hyderabad' | 'Chennai' | 'Ahmedabad' | 'Kolkata' | 'Jaipur' | 'Bhubaneswar' | 'Lucknow' | 'Indore' | 'Chandigarh';
   occupation: string;
   background: string;
   currentSituation: string;

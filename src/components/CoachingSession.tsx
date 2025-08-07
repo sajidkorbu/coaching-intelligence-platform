@@ -3,6 +3,8 @@ import { PersonaProfile, Message, CoachingReport } from '../types';
 import { PersonaEngine } from '../core/PersonaEngine';
 import { ICFCoachingEvaluator } from '../evaluation/ICFCoachingEvaluator';
 import { DatabaseService } from '../services/DatabaseService';
+import { SessionSummaryService, SessionSummary as SessionSummaryType } from '../services/SessionSummaryService';
+import { SessionSummary } from './SessionSummary';
 
 interface CoachingSessionProps {
   personaId: string;
@@ -21,12 +23,15 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
   const [messageCount, setMessageCount] = useState(0);
+  const [sessionSummary, setSessionSummary] = useState<SessionSummaryType | null>(null);
+  const [showSummary, setShowSummary] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const personaEngine = useRef(new PersonaEngine());
   const coachingEvaluator = useRef(new ICFCoachingEvaluator());
   const databaseService = useRef(new DatabaseService());
+  const summaryService = useRef(new SessionSummaryService());
 
-  const MAX_MESSAGES = 16; // 8 exchanges (coach + client responses)
+  const MAX_MESSAGES = 30; // 15 exchanges (coach + client responses)
 
   useEffect(() => {
     initializeSession();
@@ -108,7 +113,19 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, clientMessage]);
+      setMessages(prev => {
+        const newMessages = [...prev, clientMessage];
+        
+        // Generate session summary after 2 exchanges and update every 2 exchanges
+        const newExchangeCount = Math.floor((messageCount + 1) / 2);
+        if (newExchangeCount >= 2 && newExchangeCount % 2 === 0 && persona) {
+          const summary = summaryService.current.generateSummary(newMessages, persona, newExchangeCount);
+          setSessionSummary(summary);
+          setShowSummary(true);
+        }
+        
+        return newMessages;
+      });
       setMessageCount(prev => prev + 1);
     } catch (error) {
       console.error('❌ CoachingSession Error:', error);
@@ -215,8 +232,16 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
           </div>
           <div className="flex items-center space-x-4">
             <div className="text-sm text-gray-600">
-              <span className="font-medium">{getMessageExchangeCount()}/8</span> exchanges
+              <span className="font-medium">{getMessageExchangeCount()}/15</span> exchanges
             </div>
+            {showSummary && sessionSummary && (
+              <button
+                onClick={() => setShowSummary(!showSummary)}
+                className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+              >
+                📝 Summary
+              </button>
+            )}
             <button
               onClick={handleEndSession}
               className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
@@ -281,7 +306,7 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
                   🎉 Coaching session completed! 
                 </p>
                 <p className="text-green-700 text-sm mt-1">
-                  You've had 8 meaningful exchanges with {persona.name}. Ready for your evaluation?
+                  You've had 15 meaningful exchanges with {persona.name}. Ready for your evaluation?
                 </p>
               </div>
               <button
@@ -313,6 +338,17 @@ export const CoachingSession: React.FC<CoachingSessionProps> = ({
           )}
         </div>
       </div>
+      
+      {/* Session Summary Overlay */}
+      {sessionSummary && (
+        <SessionSummary
+          summary={sessionSummary}
+          personaName={persona.name}
+          exchangeCount={getMessageExchangeCount()}
+          onClose={() => setShowSummary(false)}
+          isVisible={showSummary}
+        />
+      )}
     </div>
   );
 };

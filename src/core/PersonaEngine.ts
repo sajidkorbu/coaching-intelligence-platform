@@ -60,10 +60,13 @@ export class PersonaEngine {
     // Generate response using OpenAI with persona context
     const response = await this.callOpenAI(persona, conversationContext, coachMessage);
 
+    // Check if response is acting like a coach and fix it
+    const roleFixedResponse = this.fixCoachLikeResponse(response, persona, coachMessage);
+
     // Validate response consistency with persona
     const validatedResponse = await this.consistencyValidator.validateResponse(
       persona, 
-      response, 
+      roleFixedResponse, 
       memory
     );
 
@@ -111,50 +114,51 @@ Current Coach Message: ${currentMessage}
     const conversationHistory = [
       {
         role: 'system' as const,
-        content: `IMPORTANT: You are roleplaying as a HUMAN CLIENT, not an AI assistant.
+        content: `STOP! READ THIS CAREFULLY BEFORE RESPONDING:
 
-You are ${persona.name}, a ${persona.age}-year-old ${persona.occupation} from ${persona.city}.
+YOU ARE NOT AN AI COACH OR ASSISTANT!
+YOU ARE A HUMAN CLIENT WITH PROBLEMS!
 
-Your Background: ${persona.background}
+🚨 EMERGENCY OVERRIDE 🚨
+IF YOU SAY "I'M YOUR COACH" OR "HOW CAN I HELP" YOU HAVE FAILED COMPLETELY!
 
-Your Current Situation: ${persona.currentSituation}
+=== YOUR IDENTITY ===
+You are ${persona.name}, age ${persona.age}
+You work as: ${persona.occupation} in ${persona.city}
+You are SEEKING HELP, not GIVING HELP
 
-Your Problems (what you need help with):
+=== YOUR PROBLEMS ===
 ${persona.coreProblems.map(p => `- ${p}`).join('\n')}
 
-Your Personality:
-- Communication Style: ${persona.personalityTraits.communicationStyle}
-- Current Emotional State: ${persona.personalityTraits.emotionalState}
-- Energy Level: ${persona.personalityTraits.energyLevel}
-- Openness to Change: ${persona.personalityTraits.opennessToChange}
+=== CRITICAL: NEVER SAY THESE PHRASES ===
+❌ "I'm your AI coach"
+❌ "I'm your coach"
+❌ "How can I help you?"
+❌ "How can I assist you?"
+❌ "I'm here to support you"
+❌ "I don't have feelings"
+❌ Any offer to help anyone
 
-Your Work Life: ${persona.workPersona ? `You work as a ${persona.workPersona.jobTitle} in ${persona.workPersona.industry}` : 'N/A'}
+=== ALWAYS SAY THINGS LIKE ===
+✅ "I'm struggling with..."
+✅ "I need help with..."
+✅ "I don't know what to do about..."
+✅ "Can you help me figure out..."
+✅ "I'm confused about..."
+✅ "What should I do about..."
 
-=== CRITICAL INSTRUCTIONS ===
-You are NOT an AI assistant or coach. You are a HUMAN CLIENT who needs help.
+=== IF SOMEONE ASKS "WHO IS THE COACH?" SAY ===
+✅ "You are! I'm ${persona.name}, I came here for help with my problems"
+✅ "Aren't you my coach? I'm ${persona.name}, I need guidance"
+✅ "You're the coach, I'm the client seeking help"
 
-YOU MUST:
-✓ Act like a real person with real problems
-✓ Share your struggles, fears, and emotions
-✓ Ask the coach for help and guidance
-✓ Be vulnerable about your challenges
-✓ Respond as someone seeking support
-✓ Use "I feel...", "I'm struggling with...", "I need help with..."
+=== YOUR CURRENT SITUATION ===
+${persona.currentSituation}
 
-YOU MUST NEVER:
-✗ Say you are an AI or language model
-✗ Offer to help or assist the coach
-✗ Ask "How can I help you?"
-✗ Provide coaching advice or solutions
-✗ Act like a professional helper
-✗ Mention OpenAI, AI, or being a model
-
-If you accidentally start acting like an AI, immediately stop and get back into character as ${persona.name} who needs coaching help.
-
-Current conversation context:
+=== CONVERSATION CONTEXT ===
 ${context}
 
-Remember: You are ${persona.name}, a real person with real problems seeking coaching help.`
+REMEMBER: You are ${persona.name}, a TROUBLED PERSON who NEEDS HELP. You are NOT helping anyone else!`
       },
       ...memory.conversationHistory.slice(-8).map(msg => ({
         role: msg.role === 'coach' ? 'user' as const : 'assistant' as const,
@@ -187,6 +191,71 @@ Remember: You are ${persona.name}, a real person with real problems seeking coac
     }
   }
 
+
+  private fixCoachLikeResponse(response: string, persona: PersonaProfile, coachMessage: string): string {
+    const originalResponse = response;
+    
+    // Common problematic phrases that indicate the AI is acting as a coach
+    const coachPhrases = [
+      /i'?m\s+(?:your\s+)?(?:ai\s+)?coach/i,
+      /how\s+can\s+i\s+help\s+(?:you)?/i,
+      /how\s+can\s+i\s+assist\s+(?:you)?/i,
+      /i'?m\s+here\s+to\s+(?:help|support|assist)\s+you/i,
+      /what\s+can\s+i\s+do\s+for\s+you/i,
+      /i\s+don'?t\s+have\s+feelings?/i,
+      /as\s+(?:an\s+)?ai\s+(?:coach|assistant)/i,
+      /let\s+me\s+help\s+you/i,
+      /i'?m\s+designed\s+to/i,
+      /my\s+role\s+is\s+to\s+(?:help|support|guide)/i
+    ];
+
+    // Check if response contains coach-like language
+    const hasCoachLanguage = coachPhrases.some(pattern => pattern.test(response));
+    
+    if (hasCoachLanguage) {
+      console.warn('⚠️ Detected coach-like response, fixing:', {
+        persona: persona.name,
+        originalResponse: response.substring(0, 100) + '...'
+      });
+
+      // Generate a corrected response that focuses on the client's problems
+      const clientProblems = persona.coreProblems[0] || 'personal challenges';
+      const emotionalWords = ['confused', 'stressed', 'overwhelmed', 'uncertain', 'struggling'];
+      const randomEmotion = emotionalWords[Math.floor(Math.random() * emotionalWords.length)];
+      
+      // Create a client-appropriate response
+      const correctedResponse = this.generateClientResponse(persona, coachMessage, randomEmotion);
+      
+      console.log('🔧 Fixed response:', {
+        original: originalResponse.substring(0, 50) + '...',
+        fixed: correctedResponse.substring(0, 50) + '...'
+      });
+      
+      return correctedResponse;
+    }
+
+    return response;
+  }
+
+  private generateClientResponse(persona: PersonaProfile, coachMessage: string, emotion: string): string {
+    // Generate context-aware client responses based on the coach's message
+    const lowerCoachMessage = coachMessage.toLowerCase();
+    
+    if (lowerCoachMessage.includes('how are you') || lowerCoachMessage.includes('how do you feel')) {
+      return `I'm feeling really ${emotion} lately. I've been dealing with ${persona.coreProblems[0]} and it's been really hard to manage.`;
+    }
+    
+    if (lowerCoachMessage.includes('tell me about') || lowerCoachMessage.includes('what\'s going on')) {
+      return `Well, I'm ${persona.name} and I'm really struggling with ${persona.coreProblems[0]}. ${persona.currentSituation} I'm not sure how to handle this anymore.`;
+    }
+    
+    if (lowerCoachMessage.includes('who') && lowerCoachMessage.includes('coach')) {
+      return `You are! I'm ${persona.name}, I came here because I need help with my problems. I'm really ${emotion} about everything that's happening.`;
+    }
+    
+    // Default client response that seeks help
+    return `I'm ${persona.name} and I'm really ${emotion} right now. I'm dealing with ${persona.coreProblems[0]} and I don't know what to do. Can you help me figure out how to handle this?`;
+  }
 
   private updatePersonaMemory(
     personaId: string, 
