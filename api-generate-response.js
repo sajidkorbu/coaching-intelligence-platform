@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     // Add authentication/rate limiting here
     
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-5-2025-08-07",
       messages: conversationHistory,
       max_tokens: 300,
       temperature: 0.8

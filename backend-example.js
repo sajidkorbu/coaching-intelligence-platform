@@ -25,7 +25,7 @@ app.post('/api/generate-response', async (req, res) => {
     // Add rate limiting, user validation here
     
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-5-2025-08-07",
       messages: conversationHistory,
       max_tokens: 300,
       temperature: 0.8
